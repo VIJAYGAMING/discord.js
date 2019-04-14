@@ -809,11 +809,11 @@ declare module 'discord.js' {
 	}
 
 	export class Presence {
-		constructor(client: Client, data?: object);
+		constructor(client: Client, data: object);
 		public activity: Activity;
 		public flags: Readonly<ActivityFlags>;
 		public status: PresenceStatus;
-		public clientStatus: ClientPresenceStatusData;
+		public clientStatus: ClientPresenceStatusData | null;
 		public readonly user: User;
 		public readonly member?: GuildMember;
 		public equals(presence: Presence): boolean;
@@ -1685,9 +1685,11 @@ declare module 'discord.js' {
 	}
 
 	type ColorResolvable = 'DEFAULT'
+		| 'WHITE'
 		| 'AQUA'
 		| 'GREEN'
 		| 'BLUE'
+		| 'YELLOW'
 		| 'PURPLE'
 		| 'LUMINOUS_VIVID_PINK'
 		| 'GOLD'
@@ -2073,9 +2075,9 @@ declare module 'discord.js' {
 	type ClientPresenceStatus = 'online' | 'idle' | 'dnd';
 
 	interface ClientPresenceStatusData {
-		web?: ClientPresenceStatus;
-		mobile?: ClientPresenceStatus;
-		desktop?: ClientPresenceStatus;
+		web?: PresenceStatus;
+		mobile?: PresenceStatus;
+		desktop?: PresenceStatus;
 	}
 
 	type PartialTypes = 'USER'

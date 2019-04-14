@@ -25,6 +25,10 @@ const { ActivityTypes } = require('../util/Constants');
  * Represents a user's presence.
  */
 class Presence {
+  /**
+   * @param {Client} client The instantiating client
+   * @param {Object} [data={}] The data for the presence
+   */
   constructor(client, data = {}) {
     Object.defineProperty(this, 'client', { value: client });
     /**
@@ -77,9 +81,9 @@ class Presence {
     /**
      * The devices this presence is on
      * @type {?object}
-     * @property {PresenceStatus} web
-     * @property {PresenceStatus} mobile
-     * @property {PresenceStatus} desktop
+     * @property {?PresenceStatus} web The current presence in the web application
+     * @property {?PresenceStatus} mobile The current presence in the mobile application
+     * @property {?PresenceStatus} desktop The current presence in the desktop application
      */
     this.clientStatus = data.client_status || null;
 
