@@ -294,8 +294,8 @@ declare module 'discord.js' {
 		public equals(collection: Collection<any, any>): boolean;
 		public every(fn: (value: V, key: K, collection: Collection<K, V>) => boolean, thisArg?: any): boolean;
 		public filter(fn: (value: V, key: K, collection: Collection<K, V>) => boolean, thisArg?: any): Collection<K, V>;
-		public find(fn: (value: V, key: K, collection: Collection<K, V>) => boolean, thisArg?: any): V;
-		public findKey(fn: (value: V, key: K, collection: Collection<K, V>) => boolean, thisArg?: any): K;
+		public find(fn: (value: V, key: K, collection: Collection<K, V>) => boolean, thisArg?: any): V | undefined;
+		public findKey(fn: (value: V, key: K, collection: Collection<K, V>) => boolean, thisArg?: any): K | undefined;
 		public first(): V | undefined;
 		public first(count: number): V[];
 		public firstKey(): K | undefined;
@@ -1430,6 +1430,7 @@ declare module 'discord.js' {
 		public fetch(options: UserResolvable | FetchMemberOptions): Promise<GuildMember>;
 		public fetch(): Promise<GuildMemberStore>;
 		public fetch(options: FetchMembersOptions): Promise<Collection<Snowflake, GuildMember>>;
+		public prune(options: GuildPruneMembersOptions & { dry?: false, count: false }): Promise<null>;
 		public prune(options?: GuildPruneMembersOptions): Promise<number>;
 		public unban(user: UserResolvable, reason?: string): Promise<User>;
 	}
@@ -1901,6 +1902,7 @@ declare module 'discord.js' {
 	type GuildResolvable = Guild | Snowflake;
 
 	interface GuildPruneMembersOptions {
+		count?: boolean;
 		days?: number;
 		dry?: boolean;
 		reason?: string;
