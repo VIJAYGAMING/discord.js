@@ -131,6 +131,8 @@ exports.Endpoints = {
         if (format === 'default') format = hash.startsWith('a_') ? 'gif' : 'png';
         return makeImageUrl(`${root}/avatars/${userID}/${hash}`, { format, size });
       },
+      Banner: (guildID, hash, format = 'png', size) =>
+        makeImageUrl(`${root}/banners/${guildID}/${hash}`, { format, size }),
       Icon: (guildID, hash, format = 'png', size) =>
         makeImageUrl(`${root}/icons/${guildID}/${hash}`, { format, size }),
       AppIcon: (clientID, hash, { format = 'png', size } = {}) =>
@@ -409,6 +411,8 @@ exports.ChannelTypes = {
   VOICE: 2,
   GROUP: 3,
   CATEGORY: 4,
+  NEWS: 5,
+  STORE: 6,
 };
 
 exports.ClientApplicationAssetTypes = {
