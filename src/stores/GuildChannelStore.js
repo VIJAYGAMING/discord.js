@@ -29,7 +29,11 @@ class GuildChannelStore extends DataStore {
     }
 
     const channels = await this.client.api.guilds(this.guild.id).channels.get();
-    for (const channel of channels) this.add(channel, cache);
+    for (const channel of channels) {
+      const type = Object.keys(ChannelTypes)[channel.type];
+      channel.type = type ? type.toLowerCase() : 'unknown';
+      this.add(channel, cache);
+    }
     return id ? this.get(id) || null : this;
   }
 
