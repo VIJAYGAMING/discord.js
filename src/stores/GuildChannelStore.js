@@ -21,6 +21,17 @@ class GuildChannelStore extends DataStore {
     this.set(channel.id, channel);
     return channel;
   }
+  
+  async fetch(id, cache = true) {
+    if (id) {
+      const existing = this.get(id);
+      if (existing) return existing;
+    }
+
+    const channels = await this.client.api.guilds(this.guild.id).channels.get();
+    for (const channel of channels) this.add(channel, cache);
+    return id ? this.get(id) || null : this;
+  }
 
   /**
    * Creates a new channel in the guild.
