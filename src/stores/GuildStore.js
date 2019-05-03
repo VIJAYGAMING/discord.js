@@ -72,17 +72,17 @@ class GuildStore extends DataStore {
           }, reject)
       );
     }
-    
-    /**
-    * Fetches a guild.
-    * @returns {Promise<Guild>}
-    */
-    fetch(id) {
-      return this.client.api.guilds(id).get().then(data => this.add(data));
-    }
 
     return DataResolver.resolveImage(icon)
       .then(data => this.create(name, { region, icon: data || null }));
+  }
+  
+  /**
+   * Fetches a guild.
+   * @returns {Promise<Guild>}
+   */
+  fetch(id) {
+    return this.client.api.guilds(id).get().then(data => this.add(data));
   }
 }
 
