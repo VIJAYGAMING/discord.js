@@ -591,10 +591,7 @@ declare module 'discord.js' {
 		public hasPermission(permission: PermissionResolvable, options?: { checkAdmin?: boolean; checkOwner?: boolean }): boolean;
 		public kick(reason?: string): Promise<GuildMember>;
 		public permissionsIn(channel: ChannelResolvable): Readonly<Permissions>;
-		public setDeaf(deaf: boolean, reason?: string): Promise<GuildMember>;
-		public setMute(mute: boolean, reason?: string): Promise<GuildMember>;
 		public setNickname(nickname: string, reason?: string): Promise<GuildMember>;
-		public setVoiceChannel(voiceChannel: ChannelResolvable): Promise<GuildMember>;
 		public toJSON(): object;
 		public toString(): string;
 	}
@@ -831,11 +828,12 @@ declare module 'discord.js' {
 	export class Presence {
 		constructor(client: Client, data?: object);
 		public activity: Activity | null;
-		public flags: Readonly<ActivityFlags>;
-		public status: PresenceStatus;
 		public clientStatus: ClientPresenceStatusData | null;
-		public readonly user: User | null;
+		public flags: Readonly<ActivityFlags>;
+		public guild: Guild | null;
 		public readonly member: GuildMember | null;
+		public status: PresenceStatus;
+		public readonly user: User | null;
 		public equals(presence: Presence): boolean;
 	}
 
@@ -1287,6 +1285,7 @@ declare module 'discord.js' {
 
 		public setDeaf(deaf: boolean, reason?: string): Promise<GuildMember>;
 		public setMute(mute: boolean, reason?: string): Promise<GuildMember>;
+		public setChannel(channel: ChannelResolvable | null, reason?: string): Promise<GuildMember>;
 		public setSelfDeaf(deaf: boolean): Promise<boolean>;
 		public setSelfMute(mute: boolean): Promise<boolean>;
 	}
@@ -1927,7 +1926,7 @@ declare module 'discord.js' {
 		roles?: Collection<Snowflake, Role> | RoleResolvable[];
 		mute?: boolean;
 		deaf?: boolean;
-		channel?: ChannelResolvable;
+		channel?: ChannelResolvable | null;
 	}
 
 	type GuildMemberResolvable = GuildMember | UserResolvable;
