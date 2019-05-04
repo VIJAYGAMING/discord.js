@@ -81,8 +81,8 @@ class GuildStore extends DataStore {
    * Fetches a guild.
    * @returns {Promise<Guild>}
    */
-  fetch(id) {
-    return this.client.api.guilds(id).get().then(data => this.add(data));
+  fetch({id, cache = true}) {
+    return this.client.api.guilds(id).get().then(data => this.add(data, cache));
   }
 }
 
