@@ -189,6 +189,30 @@ class Guild extends Base {
     this.embedEnabled = data.embed_enabled;
 
     /**
+     * The type of premium tier:
+     * * 0: NONE
+     * * 1: TIER_1
+     * * 2: TIER_2
+     * * 3: TIER_3
+     * @typedef {number} PremiumTier
+     */
+
+    /**
+     * The premium tier on this guild
+     * @type {PremiumTier}
+     */
+    this.premiumTier = data.premium_tier;
+
+    /**
+     * The total number of users currently boosting this server
+     * @type {?number}
+     * @name Guild#premiumSubscriptionCount
+     */
+    if (typeof data.premium_subscription_count !== 'undefined') {
+      this.premiumSubscriptionCount = data.premium_subscription_count;
+    }
+
+    /**
      * Whether widget images are enabled on this guild
      * @type {?boolean}
      * @name Guild#widgetEnabled
@@ -963,6 +987,40 @@ class Guild extends Base {
       this.client.actions.GuildChannelsPositionUpdate.handle({
         guild_id: this.id,
         channels: updatedChannels,
+      }).guild
+    );
+  }
+
+  /**
+   * The data needed for updating a guild role's position
+   * @typedef {Object} GuildRolePosition
+   * @property {RoleResolveable} role The ID of the role
+   * @property {number} position The position to update
+   */
+
+  /**
+   * Batch-updates the guild's role positions
+   * @param {GuildRolePosition[]} rolePositions Role positions to update
+   * @returns {Promise<Guild>}
+   * @example
+   * guild.setRolePositions([{ role: roleID, position: updatedRoleIndex }])
+   *  .then(guild => console.log(`Role permissions updated for ${guild}`))
+   *  .catch(console.error);
+   */
+  setRolePositions(rolePositions) {
+    // Make sure rolePositions are prepared for API
+    rolePositions = rolePositions.map(o => ({
+      id: o.role,
+      position: o.position,
+    }));
+
+    // Call the API to update role positions
+    return this.client.api.guilds(this.id).roles.patch({
+      data: rolePositions,
+    }).then(() =>
+      this.client.actions.GuildRolePositionUpdate.handle({
+        guild_id: this.id,
+        roles: rolePositions,
       }).guild
     );
   }

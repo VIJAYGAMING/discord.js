@@ -38,6 +38,31 @@ class GuildChannelStore extends DataStore {
   }
 
   /**
+   * Data that can be resolved to give a Guild Channel object. This can be:
+   * * A GuildChannel object
+   * * A Snowflake
+   * @typedef {GuildChannel|Snowflake} GuildChannelResolvable
+   */
+
+  /**
+   * Resolves a GuildChannelResolvable to a Channel object.
+   * @method resolve
+   * @memberof GuildChannelStore
+   * @instance
+   * @param {GuildChannelResolvable} channel The GuildChannel resolvable to resolve
+   * @returns {?Channel}
+   */
+
+  /**
+   * Resolves a GuildChannelResolvable to a channel ID string.
+   * @method resolveID
+   * @memberof GuildChannelStore
+   * @instance
+   * @param {GuildChannelResolvable} channel The GuildChannel resolvable to resolve
+   * @returns {?Snowflake}
+   */
+
+  /**
    * Creates a new channel in the guild.
    * @param {string} name The name of the new channel
    * @param {Object} [options] Options
@@ -105,31 +130,6 @@ class GuildChannelStore extends DataStore {
     });
     return this.client.actions.ChannelCreate.handle(data).channel;
   }
-
-  /**
-   * Data that can be resolved to give a Guild Channel object. This can be:
-   * * A GuildChannel object
-   * * A Snowflake
-   * @typedef {GuildChannel|Snowflake} GuildChannelResolvable
-   */
-
-  /**
-   * Resolves a GuildChannelResolvable to a Channel object.
-   * @method resolve
-   * @memberof GuildChannelStore
-   * @instance
-   * @param {GuildChannelResolvable} channel The GuildChannel resolvable to resolve
-   * @returns {?Channel}
-   */
-
-  /**
-   * Resolves a GuildChannelResolvable to a channel ID string.
-   * @method resolveID
-   * @memberof GuildChannelStore
-   * @instance
-   * @param {GuildChannelResolvable} channel The GuildChannel resolvable to resolve
-   * @returns {?Snowflake}
-   */
 }
 
 module.exports = GuildChannelStore;
