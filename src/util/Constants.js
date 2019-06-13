@@ -108,7 +108,7 @@ const AllowedImageFormats = [
 
 const AllowedImageSizes = Array.from({ length: 8 }, (e, i) => 2 ** (i + 4));
 
-function makeImageUrl(root, { format = 'png', size } = {}) {
+function makeImageUrl(root, { format = 'webp', size } = {}) {
   if (format && !AllowedImageFormats.includes(format)) throw new Error('IMAGE_FORMAT', format);
   if (size && !AllowedImageSizes.includes(size)) throw new RangeError('IMAGE_SIZE', size);
   return `${root}.${format}${size ? `?size=${size}` : ''}`;
@@ -128,22 +128,22 @@ exports.Endpoints = {
       Asset: name => `${root}/assets/${name}`,
       DefaultAvatar: number => `${root}/embed/avatars/${number}.png`,
       Avatar: (userID, hash, format = 'default', size) => {
-        if (format === 'default') format = hash.startsWith('a_') ? 'gif' : 'png';
+        if (format === 'default') format = hash.startsWith('a_') ? 'gif' : 'webp';
         return makeImageUrl(`${root}/avatars/${userID}/${hash}`, { format, size });
       },
-      Banner: (guildID, hash, format = 'png', size) =>
+      Banner: (guildID, hash, format = 'webp', size) =>
         makeImageUrl(`${root}/banners/${guildID}/${hash}`, { format, size }),
       Icon: (guildID, hash, format = 'default', size) => {
         if (format === 'default') format = hash.startsWith('a_') ? 'gif' : 'webp';
         return makeImageUrl(`${root}/icons/${guildID}/${hash}`, { format, size });
       },
-      AppIcon: (clientID, hash, { format = 'png', size } = {}) =>
+      AppIcon: (clientID, hash, { format = 'webp', size } = {}) =>
         makeImageUrl(`${root}/app-icons/${clientID}/${hash}`, { size, format }),
-      AppAsset: (clientID, hash, { format = 'png', size } = {}) =>
+      AppAsset: (clientID, hash, { format = 'webp', size } = {}) =>
         makeImageUrl(`${root}/app-assets/${clientID}/${hash}`, { size, format }),
-      GDMIcon: (channelID, hash, format = 'png', size) =>
+      GDMIcon: (channelID, hash, format = 'webp', size) =>
         makeImageUrl(`${root}/channel-icons/${channelID}/${hash}`, { size, format }),
-      Splash: (guildID, hash, format = 'png', size) =>
+      Splash: (guildID, hash, format = 'webp', size) =>
         makeImageUrl(`${root}/splashes/${guildID}/${hash}`, { size, format }),
     };
   },
