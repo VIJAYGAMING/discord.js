@@ -350,6 +350,7 @@ declare module 'discord.js' {
 	export abstract class Collector<K, V> extends EventEmitter {
 		constructor(client: Client, filter: CollectorFilter, options?: CollectorOptions);
 		private _timeout: NodeJS.Timer | null;
+		private _idletimeout: NodeJS.Timer | null;
 
 		public readonly client: Client;
 		public collected: Collection<K, V>;
@@ -493,6 +494,7 @@ declare module 'discord.js' {
 		public member(user: UserResolvable): GuildMember | null;
 		public setAFKChannel(afkChannel: ChannelResolvable | null, reason?: string): Promise<Guild>;
 		public setAFKTimeout(afkTimeout: number, reason?: string): Promise<Guild>;
+		public setBanner(banner: Base64Resolvable | null, reason?: string): Promise<Guild>;
 		public setChannelPositions(channelPositions: ChannelPosition[]): Promise<Guild>;
 		public setDefaultMessageNotifications(defaultMessageNotifications: DefaultMessageNotifications | number, reason?: string): Promise<Guild>;
 		public setEmbed(embed: GuildEmbedData, reason?: string): Promise<Guild>;
@@ -1158,7 +1160,15 @@ declare module 'discord.js' {
 		public static convertToBuffer(ab: ArrayBuffer | string): Buffer;
 		public static delayFor(ms: number): Promise<void>;
 		public static discordSort<K, V extends { rawPosition: number; id: string; }>(collection: Collection<K, V>): Collection<K, V>;
-		public static escapeMarkdown(text: string, onlyCodeBlock?: boolean, onlyInlineCode?: boolean): string;
+		public static escapeMarkdown(text: string, options?: { codeBlock?: boolean, inlineCode?: boolean, bold?: boolean, italic?: boolean, underline?: boolean, strikethrough?: boolean, spoiler?: boolean, inlineCodeContent?: boolean, codeBlockContent?: boolean }): string;
+		public static escapeCodeBlock(text: string): string;
+		public static escapeInlineCode(text: string): string;
+		public static escapeBold(text: string): string;
+		public static escapeItalic(text: string): string;
+		public static escapeUnderline(text: string): string;
+		public static escapeStrikethrough(text: string): string;
+		public static escapeSpoiler(text: string): string;
+		public static cleanCodeBlockContent(text: string): string;
 		public static fetchRecommendedShards(token: string, guildsPerShard?: number): Promise<number>;
 		public static flatten(obj: object, ...props: { [key: string]: boolean | string }[]): object;
 		public static idToBinary(num: Snowflake): string;
@@ -1758,6 +1768,7 @@ declare module 'discord.js' {
 
 	interface CollectorOptions {
 		time?: number;
+		idle?: number;
 		dispose?: boolean;
 	}
 
@@ -1947,6 +1958,7 @@ declare module 'discord.js' {
 		icon?: Base64Resolvable;
 		owner?: GuildMemberResolvable;
 		splash?: Base64Resolvable;
+		banner?: Base64Resolvable;
 	}
 
 	interface GuildEmbedData {
