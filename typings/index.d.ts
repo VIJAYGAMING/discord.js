@@ -1861,7 +1861,7 @@ declare module 'discord.js' {
 		send(content?: StringResolvable, options?: WebhookMessageOptions & { split: true | SplitOptions } | MessageAdditions): Promise<Message[]>;
 		send(options?: WebhookMessageOptions & { split?: false } | MessageAdditions | APIMessage): Promise<Message>;
 		send(options?: WebhookMessageOptions & { split: true | SplitOptions } | MessageAdditions | APIMessage): Promise<Message[]>;
-		sendSlackMessage(body: object): Promise<Message | object>;
+		sendSlackMessage(body: object): Promise<boolean>;
 	}
 
 //#endregion
@@ -2018,6 +2018,7 @@ declare module 'discord.js' {
 		partials?: PartialTypes[];
 		restWsBridgeTimeout?: number;
 		restTimeOffset?: number;
+		restRequestTimeout?: number;
 		restSweepInterval?: number;
 		retryLimit?: number;
 		presence?: PresenceData;
