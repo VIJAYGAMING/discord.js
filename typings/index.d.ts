@@ -1,4 +1,5 @@
 declare module 'discord.js' {
+	import BaseCollection from '@discord.js/collection';
 	import { EventEmitter } from 'events';
 	import { Stream, Readable, Writable } from 'stream';
 	import { ChildProcess } from 'child_process';
@@ -99,6 +100,7 @@ declare module 'discord.js' {
 		constructor(bits?: BitFieldResolvable<S>);
 		public bitfield: number;
 		public add(...bits: BitFieldResolvable<S>[]): BitField<S>;
+		public any(bit: BitFieldResolvable<S>): boolean;
 		public equals(bit: BitFieldResolvable<S>): boolean;
 		public freeze(): Readonly<BitField<S>>;
 		public has(bit: BitFieldResolvable<S>): boolean;
@@ -310,39 +312,7 @@ declare module 'discord.js' {
 		public setUsername(username: string): Promise<ClientUser>;
 	}
 
-	export class Collection<K, V> extends Map<K, V> {
-		private _array: V[];
-		private _keyArray: K[];
-
-		public array(): V[];
-		public clone(): Collection<K, V>;
-		public concat(...collections: Collection<K, V>[]): Collection<K, V>;
-		public each(fn: (value: V, key: K, collection: Collection<K, V>) => void, thisArg?: any): Collection<K, V>;
-		public equals(collection: Collection<any, any>): boolean;
-		public every(fn: (value: V, key: K, collection: Collection<K, V>) => boolean, thisArg?: any): boolean;
-		public filter(fn: (value: V, key: K, collection: Collection<K, V>) => boolean, thisArg?: any): Collection<K, V>;
-		public find(fn: (value: V, key: K, collection: Collection<K, V>) => boolean, thisArg?: any): V | undefined;
-		public findKey(fn: (value: V, key: K, collection: Collection<K, V>) => boolean, thisArg?: any): K | undefined;
-		public first(): V | undefined;
-		public first(count: number): V[];
-		public firstKey(): K | undefined;
-		public firstKey(count: number): K[];
-		public keyArray(): K[];
-		public last(): V | undefined;
-		public last(count: number): V[];
-		public lastKey(): K | undefined;
-		public lastKey(count: number): K[];
-		public map<T>(fn: (value: V, key: K, collection: Collection<K, V>) => T, thisArg?: any): T[];
-		public partition(fn: (value: V, key: K, collection: Collection<K, V>) => boolean, thisArg?: any): [Collection<K, V>, Collection<K, V>];
-		public random(): V | undefined;
-		public random(count: number): V[];
-		public randomKey(): K | undefined;
-		public randomKey(count: number): K[];
-		public reduce<T>(fn: (accumulator: T, value: V, key: K, collection: Collection<K, V>) => T, initialValue?: T): T;
-		public some(fn: (value: V, key: K, collection: Collection<K, V>) => boolean, thisArg?: any): boolean;
-		public sort(compareFunction?: (a: V, b: V, c?: K, d?: K) => number): Collection<K, V>;
-		public sweep(fn: (value: V, key: K, collection: Collection<K, V>) => boolean, thisArg?: any): number;
-		public tap(fn: (collection: Collection<K, V>) => void, thisArg?: any): Collection<K, V>;
+	export class Collection<K, V> extends BaseCollection<K, V> {
 		public toJSON(): object;
 	}
 
@@ -652,6 +622,7 @@ declare module 'discord.js' {
 		public messages: MessageStore;
 		public recipient: User;
 		public readonly partial: boolean;
+		public fetch(): Promise<DMChannel>;
 	}
 
 	export class Emoji extends Base {
@@ -707,6 +678,7 @@ declare module 'discord.js' {
 		public readonly nameAcronym: string;
 		public readonly owner: GuildMember | null;
 		public ownerID: Snowflake;
+		public readonly partnered: boolean;
 		public premiumSubscriptionCount: number | null;
 		public premiumTier: PremiumTier;
 		public presences: PresenceStore;
@@ -803,6 +775,7 @@ declare module 'discord.js' {
 		public readonly deletable: boolean;
 		public guild: Guild;
 		public readonly manageable: boolean;
+		public readonly members: Collection<Snowflake, GuildMember>;
 		public name: string;
 		public readonly parent: CategoryChannel | null;
 		public parentID: Snowflake;
@@ -1088,11 +1061,13 @@ declare module 'discord.js' {
 		constructor(client: Client, data: object, message: Message);
 		private _emoji: GuildEmoji | ReactionEmoji;
 
-		public count: number;
+		public count: number | null;
 		public readonly emoji: GuildEmoji | ReactionEmoji;
 		public me: boolean;
 		public message: Message;
+		public readonly partial: boolean;
 		public users: ReactionUserStore;
+		public fetch(): Promise<MessageReaction>;
 		public toJSON(): object;
 	}
 
@@ -1111,6 +1086,7 @@ declare module 'discord.js' {
 	}
 
 	export class Permissions extends BitField<PermissionString> {
+		public any(permission: PermissionResolvable, checkAdmin?: boolean): boolean;
 		public has(permission: PermissionResolvable, checkAdmin?: boolean): boolean;
 
 		public static ALL: number;
@@ -1360,7 +1336,6 @@ declare module 'discord.js' {
 
 	export class TextChannel extends TextBasedChannel(GuildChannel) {
 		constructor(guild: Guild, data?: object);
-		public readonly members: Collection<Snowflake, GuildMember>;
 		public messages: MessageStore;
 		public nsfw: boolean;
 		public rateLimitPerUser: number;
@@ -1373,7 +1348,6 @@ declare module 'discord.js' {
 
 	export class NewsChannel extends TextBasedChannel(GuildChannel) {
 		constructor(guild: Guild, data?: object);
-		public readonly members: Collection<Snowflake, GuildMember>;
 		public messages: MessageStore;
 		public nsfw: boolean;
 		public topic: string;
@@ -1477,7 +1451,6 @@ declare module 'discord.js' {
 		public readonly editable: boolean;
 		public readonly full: boolean;
 		public readonly joinable: boolean;
-		public readonly members: Collection<Snowflake, GuildMember>;
 		public readonly speakable: boolean;
 		public userLimit: number;
 		public join(): Promise<VoiceConnection>;
@@ -1588,6 +1561,7 @@ declare module 'discord.js' {
 
 		public setDeaf(deaf: boolean, reason?: string): Promise<GuildMember>;
 		public setMute(mute: boolean, reason?: string): Promise<GuildMember>;
+		public kick(reason?: string): Promise<GuildMember>;
 		public setChannel(channel: ChannelResolvable | null, reason?: string): Promise<GuildMember>;
 		public setSelfDeaf(deaf: boolean): Promise<boolean>;
 		public setSelfMute(mute: boolean): Promise<boolean>;
@@ -2450,7 +2424,8 @@ declare module 'discord.js' {
 	type PartialTypes = 'USER'
 		| 'CHANNEL'
 		| 'GUILD_MEMBER'
-		| 'MESSAGE';
+		| 'MESSAGE'
+		| 'REACTION';
 
 	type PresenceStatus = ClientPresenceStatus | 'offline';
 

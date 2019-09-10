@@ -287,6 +287,7 @@ exports.ShardEvents = {
  * * CHANNEL (only affects DMChannels)
  * * GUILD_MEMBER
  * * MESSAGE
+ * * REACTION
  * <warn>Partials require you to put checks in place when handling data, read the Partials topic listed in the
  * sidebar for more information.</warn>
  * @typedef {string} PartialType
@@ -296,6 +297,7 @@ exports.PartialTypes = keyMirror([
   'CHANNEL',
   'GUILD_MEMBER',
   'MESSAGE',
+  'REACTION',
 ]);
 
 /**
@@ -464,6 +466,23 @@ exports.Colors = {
   DARK_BUT_NOT_BLACK: 0x2C2F33,
   NOT_QUITE_BLACK: 0x23272A,
 };
+
+/**
+ * The value set for the verification levels for a guild:
+ * * None
+ * * Low
+ * * Medium
+ * * (╯°□°）╯︵ ┻━┻
+ * * ┻━┻ ﾐヽ(ಠ益ಠ)ノ彡┻━┻
+ * @typedef {string} VerificationLevel
+ */
+exports.VerificationLevels = [
+  'None',
+  'Low',
+  'Medium',
+  '(╯°□°）╯︵ ┻━┻',
+  '┻━┻ ﾐヽ(ಠ益ಠ)ノ彡┻━┻',
+];
 
 /**
  * An error encountered while performing an API request. Here are the potential errors:
