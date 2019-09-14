@@ -1,5 +1,5 @@
 declare module 'discord.js' {
-	import BaseCollection from '@discord.js/collection';
+	import BaseCollection, { CollectionConstructor } from '@discordjs/collection';
 	import { EventEmitter } from 'events';
 	import { Stream, Readable, Writable } from 'stream';
 	import { ChildProcess } from 'child_process';
@@ -622,7 +622,6 @@ declare module 'discord.js' {
 		public messages: MessageStore;
 		public recipient: User;
 		public readonly partial: boolean;
-		public fetch(): Promise<DMChannel>;
 	}
 
 	export class Emoji extends Base {
@@ -1061,13 +1060,11 @@ declare module 'discord.js' {
 		constructor(client: Client, data: object, message: Message);
 		private _emoji: GuildEmoji | ReactionEmoji;
 
-		public count: number | null;
+		public count: number;
 		public readonly emoji: GuildEmoji | ReactionEmoji;
 		public me: boolean;
 		public message: Message;
-		public readonly partial: boolean;
 		public users: ReactionUserStore;
-		public fetch(): Promise<MessageReaction>;
 		public toJSON(): object;
 	}
 
@@ -1687,7 +1684,7 @@ declare module 'discord.js' {
 
 	export class DataStore<K, V, VConstructor = Constructable<V>, R = any> extends Collection<K, V> {
 		constructor(client: Client, iterable: Iterable<any>, holds: VConstructor);
-		public static readonly [Symbol.species]: typeof Collection;
+		public static readonly [Symbol.species]: CollectionConstructor;
 		public client: Client;
 		public holds: VConstructor;
 		public add(data: any, cache?: boolean, { id, extras }?: { id: K, extras: any[] }): V;
@@ -2424,8 +2421,7 @@ declare module 'discord.js' {
 	type PartialTypes = 'USER'
 		| 'CHANNEL'
 		| 'GUILD_MEMBER'
-		| 'MESSAGE'
-		| 'REACTION';
+		| 'MESSAGE';
 
 	type PresenceStatus = ClientPresenceStatus | 'offline';
 
