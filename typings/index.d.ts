@@ -794,7 +794,7 @@ declare module 'discord.js' {
 		public readonly members: Collection<Snowflake, GuildMember>;
 		public name: string;
 		public readonly parent: CategoryChannel | null;
-		public parentID: Snowflake;
+		public parentID: Snowflake | null;
 		public permissionOverwrites: Collection<Snowflake, PermissionOverwrites>;
 		public readonly permissionsLocked: boolean | null;
 		public readonly position: number;
@@ -851,7 +851,7 @@ declare module 'discord.js' {
 		public joinedTimestamp: number | null;
 		public readonly kickable: boolean;
 		public readonly manageable: boolean;
-		public nickname: string;
+		public nickname: string | null;
 		public readonly partial: boolean;
 		public readonly permissions: Readonly<Permissions>;
 		public readonly premiumSince: Date | null;
@@ -1579,6 +1579,7 @@ declare module 'discord.js' {
 		public serverDeaf?: boolean;
 		public serverMute?: boolean;
 		public sessionID?: string;
+		public streaming: boolean;
 		public readonly speaking: boolean | null;
 
 		public setDeaf(deaf: boolean, reason?: string): Promise<GuildMember>;
