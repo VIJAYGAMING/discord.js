@@ -197,7 +197,7 @@ declare module 'discord.js' {
 		public on(event: 'roleUpdate', listener: (oldRole: Role, newRole: Role) => void): this;
 		public on(event: 'typingStart' | 'typingStop', listener: (channel: Channel | PartialChannel, user: User | PartialUser) => void): this;
 		public on(event: 'userUpdate', listener: (oldUser: User | PartialUser, newUser: User | PartialUser) => void): this;
-		public on(event: 'voiceStateUpdate', listener: (oldState: VoiceState | undefined, newState: VoiceState) => void): this;
+		public on(event: 'voiceStateUpdate', listener: (oldState: VoiceState, newState: VoiceState) => void): this;
 		public on(event: 'webhookUpdate', listener: (channel: TextChannel) => void): this;
 		public on(event: 'invalidated', listener: () => void): this;
 		public on(event: 'shardDisconnect', listener: (event: CloseEvent, id: number) => void): this;
@@ -234,7 +234,7 @@ declare module 'discord.js' {
 		public once(event: 'roleUpdate', listener: (oldRole: Role, newRole: Role) => void): this;
 		public once(event: 'typingStart' | 'typingStop', listener: (channel: Channel | PartialChannel, user: User | PartialUser) => void): this;
 		public once(event: 'userUpdate', listener: (oldUser: User | PartialUser, newUser: User | PartialUser) => void): this;
-		public once(event: 'voiceStateUpdate', listener: (oldState: VoiceState | undefined, newState: VoiceState) => void): this;
+		public once(event: 'voiceStateUpdate', listener: (oldState: VoiceState, newState: VoiceState) => void): this;
 		public once(event: 'webhookUpdate', listener: (channel: TextChannel) => void): this;
 		public once(event: 'invalidated', listener: () => void): this;
 		public once(event: 'shardDisconnect', listener: (event: CloseEvent, id: number) => void): this;
@@ -651,13 +651,13 @@ declare module 'discord.js' {
 	export class Emoji extends Base {
 		constructor(client: Client, emoji: object);
 		public animated: boolean;
-		public readonly createdAt: Date;
-		public readonly createdTimestamp: number;
-		public readonly deletable: boolean;
-		public id: Snowflake;
+		public readonly createdAt: Date | null;
+		public readonly createdTimestamp: number | null;
+		public deleted: boolean;
+		public id: Snowflake | null;
 		public name: string;
 		public readonly identifier: string;
-		public readonly url: string;
+		public readonly url: string | null;
 		public toJSON(): object;
 		public toString(): string;
 	}
@@ -833,7 +833,7 @@ declare module 'discord.js' {
 		private _roles: string[];
 
 		public available: boolean;
-		public deleted: boolean;
+		public readonly deletable: boolean;
 		public guild: Guild;
 		public managed: boolean;
 		public requiresColons: boolean;
