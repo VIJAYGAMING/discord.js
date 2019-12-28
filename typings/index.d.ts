@@ -118,10 +118,10 @@ declare module 'discord.js' {
 		public equals(bit: BitFieldResolvable<S>): boolean;
 		public freeze(): Readonly<BitField<S>>;
 		public has(bit: BitFieldResolvable<S>): boolean;
-		public missing(bits: BitFieldResolvable<S>, ...hasParams: any[]): S[];
+		public missing(bits: BitFieldResolvable<S>, ...hasParam: readonly unknown[]): S[];
 		public remove(...bits: BitFieldResolvable<S>[]): BitField<S>;
-		public serialize(...hasParams: BitFieldResolvable<S>[]): Record<S, boolean>;
-		public toArray(): S[];
+		public serialize(...hasParam: readonly unknown[]): Record<S, boolean>;
+		public toArray(...hasParam: readonly unknown[]): S[];
 		public toJSON(): number;
 		public valueOf(): number;
 		public [Symbol.iterator](): IterableIterator<S>;
@@ -1124,6 +1124,9 @@ declare module 'discord.js' {
 	export class Permissions extends BitField<PermissionString> {
 		public any(permission: PermissionResolvable, checkAdmin?: boolean): boolean;
 		public has(permission: PermissionResolvable, checkAdmin?: boolean): boolean;
+		public missing(bits: BitFieldResolvable<PermissionString>, checkAdmin?: boolean): PermissionString[];
+		public serialize(checkAdmin?: boolean): Record<PermissionString, boolean>;
+		public toArray(checkAdmin?: boolean): PermissionString[];
 
 		public static ALL: number;
 		public static DEFAULT: number;
@@ -1633,11 +1636,13 @@ declare module 'discord.js' {
 		public guildID: Snowflake;
 		public name: string;
 		public owner: User | object | null;
-		public readonly url: string;
+		public token: string | null;
+		public type: WebhookTypes;
 	}
 
 	export class WebhookClient extends WebhookMixin(BaseClient) {
 		constructor(id: string, token: string, options?: ClientOptions);
+		public token: string;
 	}
 
 	export class WebSocketManager extends EventEmitter {
@@ -1906,7 +1911,9 @@ declare module 'discord.js' {
 	interface WebhookFields {
 		readonly client: Client;
 		id: Snowflake;
-		token: string;
+		readonly createdAt: Date;
+		readonly createdTimestamp: number;
+		readonly url: string;
 		delete(reason?: string): Promise<void>;
 		edit(options: WebhookEditData): Promise<Webhook>;
 		send(content?: StringResolvable, options?: WebhookMessageOptions & { split?: false } | MessageAdditions): Promise<Message>;
@@ -2650,6 +2657,8 @@ declare module 'discord.js' {
 		code?: string | boolean;
 		split?: boolean | SplitOptions;
 	}
+
+	type WebhookTypes = 'Incoming' | 'Channel Follower';
 
 	interface WebSocketOptions {
 		large_threshold?: number;
