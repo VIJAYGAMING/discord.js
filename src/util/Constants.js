@@ -119,7 +119,9 @@ function makeImageUrl(root, { format = 'png', size } = {}) {
  * Options for Image URLs.
  * @typedef {Object} ImageURLOptions
  * @property {string} [format] One of `webp`, `png`, `jpg`, `gif`. If no format is provided,
- * it will be `gif` for animated avatars or otherwise `webp`
+ * defaults to `png`.
+ * @property {boolean} [dynamic] If true, the format will dynamically change to `gif` for
+ * animated avatars; the default is false.
  * @property {number} [size] One of `16`, `32`, `64`, `128`, `256`, `512`, `1024`, `2048`
  */
 
@@ -129,14 +131,14 @@ exports.Endpoints = {
       Emoji: (emojiID, format = 'png') => `${root}/emojis/${emojiID}.${format}`,
       Asset: name => `${root}/assets/${name}`,
       DefaultAvatar: discriminator => `${root}/embed/avatars/${discriminator}.png`,
-      Avatar: (userID, hash, format = 'default', size) => {
-        if (format === 'default') format = hash.startsWith('a_') ? 'gif' : 'png';
+      Avatar: (userID, hash, format = 'png', size, dynamic = false) => {
+        if (dynamic) format = hash.startsWith('a_') ? 'gif' : format;
         return makeImageUrl(`${root}/avatars/${userID}/${hash}`, { format, size });
       },
       Banner: (guildID, hash, format = 'png', size) =>
         makeImageUrl(`${root}/banners/${guildID}/${hash}`, { format, size }),
-      Icon: (guildID, hash, format = 'default', size) => {
-        if (format === 'default') format = hash.startsWith('a_') ? 'gif' : 'png';
+      Icon: (guildID, hash, format = 'png', size, dynamic = false) => {
+        if (dynamic) format = hash.startsWith('a_') ? 'gif' : format;
         return makeImageUrl(`${root}/icons/${guildID}/${hash}`, { format, size });
       },
       AppIcon: (clientID, hash, { format = 'png', size } = {}) =>
@@ -147,7 +149,7 @@ exports.Endpoints = {
         makeImageUrl(`${root}/channel-icons/${channelID}/${hash}`, { size, format }),
       Splash: (guildID, hash, format = 'png', size) =>
         makeImageUrl(`${root}/splashes/${guildID}/${hash}`, { size, format }),
-      TeamIcon: (teamID, hash, { format = 'webp', size } = {}) =>
+      TeamIcon: (teamID, hash, { format = 'png', size } = {}) =>
         makeImageUrl(`${root}/team-icons/${teamID}/${hash}`, { size, format }),
     };
   },
