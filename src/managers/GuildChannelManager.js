@@ -45,7 +45,7 @@ class GuildChannelManager extends BaseManager {
       channel.type = type ? type.toLowerCase() : 'unknown';
       this.add(channel);
     }
-    return id ? this.get(id) || null : this;
+    return id ? this.cache.get(id) || null : this;
   }
 
   /**
