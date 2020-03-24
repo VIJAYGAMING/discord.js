@@ -351,7 +351,7 @@ class WebSocketManager extends EventEmitter {
    * @param {number} [resetAfter] The amount of time in which the identify counter resets
    * @private
    */
-  async _handleSessionLimit(remaining, resetAfter) {
+  async _handleSessionLimit() {
     const { session_start_limit } = await this._getSession();
     this.sessionStartLimit = session_start_limit;
     const remaining = session_start_limit.remaining;
