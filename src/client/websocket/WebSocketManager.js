@@ -131,21 +131,14 @@ class WebSocketManager extends EventEmitter {
    * Connects this manager to the gateway.
    * @private
    */
-  async connect() {
+  async connect() {  
+    const invalidToken = new DJSError(WSCodes[4004]);
+    
     const {
         url: gatewayURL,
         shards: recommendedShards,
         session_start_limit: sessionStartLimit,
     } = await this._getSession();
-    
-    const invalidToken = new DJSError(WSCodes[4004]);
-    const {
-      url: gatewayURL,
-      shards: recommendedShards,
-      session_start_limit: sessionStartLimit,
-    } = await this.client.api.gateway.bot.get().catch(error => {
-      throw error.httpStatus === 401 ? invalidToken : error;
-    });
 
     this.sessionStartLimit = sessionStartLimit;
 
