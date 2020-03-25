@@ -131,14 +131,15 @@ class WebSocketManager extends EventEmitter {
    * Connects this manager to the gateway.
    * @private
    */
-  async connect() {  
+  async connect() {
     const invalidToken = new DJSError(WSCodes[4004]);
-    
     const {
-        url: gatewayURL,
-        shards: recommendedShards,
-        session_start_limit: sessionStartLimit,
-    } = await this._getSession();
+      url: gatewayURL,
+      shards: recommendedShards,
+      session_start_limit: sessionStartLimit,
+    } = await this.client.api.gateway.bot.get().catch(error => {
+      throw error.httpStatus === 401 ? invalidToken : error;
+    });
 
     this.sessionStartLimit = sessionStartLimit;
 
@@ -169,14 +170,6 @@ class WebSocketManager extends EventEmitter {
     await this._handleSessionLimit(remaining, reset_after);
 
     return this.createShards();
-  }
-  
-  async _getSession() {
-    return {
-        url: 'wss://gateway.discord.gg',
-        shards: 160,
-        session_start_limit: { total: 1000, remaining: 1000, reset_after: 3848745 }
-    }
   }
 
   /**
@@ -351,16 +344,19 @@ class WebSocketManager extends EventEmitter {
    * @param {number} [resetAfter] The amount of time in which the identify counter resets
    * @private
    */
-  async _handleSessionLimit() {
-    const { session_start_limit } = await this._getSession();
-    this.sessionStartLimit = session_start_limit;
-    const remaining = session_start_limit.remaining;
-    const resetAfter = session_start_limit.reset_after;
-    this.debug(`Session Limit Information\nTotal: ${session_start_limit.total}\nRemaining: ${remaining}`);
+  async _handleSessionLimit(remaining, resetAfter) {
+    if (typeof remaining === 'undefined' && typeof resetAfter === 'undefined') {
+      const { session_start_limit } = await this.client.api.gateway.bot.get();
+      this.sessionStartLimit = session_start_limit;
+      remaining = session_start_limit.remaining;
+      resetAfter = session_start_limit.reset_after;
+      this.debug(`Session Limit Information
+    Total: ${session_start_limit.total}
+    Remaining: ${remaining}`);
+    }
     if (!remaining) {
       this.debug(`Exceeded identify threshold. Will attempt a connection in ${resetAfter}ms`);
       await Util.delayFor(resetAfter);
-      this.cache = null;
     }
   }
 
