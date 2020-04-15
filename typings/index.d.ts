@@ -269,7 +269,7 @@ declare module 'discord.js' {
     public once(event: 'end', listener: (collected: Collection<K, V>, reason: string) => void): this;
   }
 
-  type AllowedImageFormat = 'webp' | 'png' | 'jpg' | 'gif';
+  type AllowedImageFormat = 'webp' | 'png' | 'jpg' | 'jpeg' | 'gif';
 
   export const Constants: {
     Package: {
@@ -1366,20 +1366,20 @@ declare module 'discord.js' {
 
   class StreamDispatcher extends VolumeMixin(Writable) {
     constructor(player: object, options?: StreamOptions, streams?: object);
-    public player: object;
-    public pausedSince: number;
+    public readonly bitrateEditable: boolean;
     public broadcast: VoiceBroadcast | null;
     public readonly paused: boolean;
-    public readonly pausedTime: boolean | null;
+    public pausedSince: number | null;
+    public readonly pausedTime: number;
+    public player: object;
     public readonly streamTime: number;
     public readonly totalStreamTime: number;
-    public readonly bitrateEditable: boolean;
 
-    public setBitrate(value: number | 'auto'): boolean;
-    public setPLP(value: number): boolean;
-    public setFEC(enabled: boolean): boolean;
     public pause(silence?: boolean): void;
     public resume(): void;
+    public setBitrate(value: number | 'auto'): boolean;
+    public setFEC(enabled: boolean): boolean;
+    public setPLP(value: number): boolean;
 
     public on(event: 'close' | 'drain' | 'finish' | 'start', listener: () => void): this;
     public on(event: 'debug', listener: (info: string) => void): this;
@@ -1819,7 +1819,6 @@ declare module 'discord.js' {
     public cacheType: Collection<K, Holds>;
     public readonly client: Client;
     public add(data: any, cache?: boolean, { id, extras }?: { id: K; extras: any[] }): Holds;
-    public remove(key: K): void;
     public resolve(resolvable: R): Holds | null;
     public resolveID(resolvable: R): K | null;
   }
@@ -2543,12 +2542,10 @@ declare module 'discord.js' {
     invite?: string;
   }
 
-  type ImageExt = 'webp' | 'png' | 'jpg' | 'gif';
-
-  type ImageSize = 16 | 32 | 64 | 128 | 256 | 512 | 1024 | 2048;
+  type ImageSize = 16 | 32 | 64 | 128 | 256 | 512 | 1024 | 2048 | 4096;
 
   interface ImageURLOptions {
-    format?: ImageExt;
+    format?: AllowedImageFormat;
     size?: ImageSize;
   }
 
