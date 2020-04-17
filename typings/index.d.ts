@@ -11,10 +11,10 @@ declare enum ChannelType {
 
 declare module 'discord.js' {
   import BaseCollection from '@discordjs/collection';
-  import { EventEmitter } from 'events';
-  import { Stream, Readable, Writable } from 'stream';
   import { ChildProcess } from 'child_process';
+  import { EventEmitter } from 'events';
   import { PathLike } from 'fs';
+  import { Readable, Stream, Writable } from 'stream';
   import * as WebSocket from 'ws';
 
   export const version: string;
@@ -193,6 +193,8 @@ declare module 'discord.js' {
     public on<K extends keyof ClientEvents>(event: K, listener: (...args: ClientEvents[K]) => void): this;
 
     public once<K extends keyof ClientEvents>(event: K, listener: (...args: ClientEvents[K]) => void): this;
+
+    public emit<K extends keyof ClientEvents>(event: K, ...args: ClientEvents[K]): boolean;
   }
 
   export class ClientApplication extends Base {
@@ -209,7 +211,7 @@ declare module 'discord.js' {
     public owner: User | Team | null;
     public rpcOrigins: string[];
     public coverImage(options?: ImageURLOptions): string;
-    public fetchAssets(): Promise<ClientApplicationAsset>;
+    public fetchAssets(): Promise<ClientApplicationAsset[]>;
     public iconURL(options?: ImageURLOptions): string;
     public toJSON(): object;
     public toString(): string;
@@ -537,7 +539,8 @@ declare module 'discord.js' {
 
   export class DataResolver {
     public static resolveBase64(data: Base64Resolvable): string;
-    public static resolveFile(resource: BufferResolvable | Stream): Promise<Buffer>;
+    public static resolveFile(resource: BufferResolvable | Stream): Promise<Buffer | Stream>;
+    public static resolveFileAsBuffer(resource: BufferResolvable | Stream): Promise<Buffer>;
     public static resolveImage(resource: BufferResolvable | Base64Resolvable): Promise<string>;
     public static resolveInviteCode(data: InviteResolvable): string;
   }
@@ -822,7 +825,7 @@ declare module 'discord.js' {
     public description?: string;
     public discoverySplash: string | null;
     public emojis: Collection<Snowflake, GuildPreviewEmoji>;
-    public features: GuildFeatures;
+    public features: GuildFeatures[];
     public icon: string | null;
     public id: string;
     public name: string;
@@ -861,7 +864,7 @@ declare module 'discord.js' {
     public role: Role;
     public syncedAt: number;
     public syncing: boolean;
-    public type: number;
+    public type: string;
     public user: User;
     public delete(reason?: string): Promise<Integration>;
     public edit(data: IntegrationEditData, reason?: string): Promise<Integration>;
@@ -1469,6 +1472,7 @@ declare module 'discord.js' {
     public discriminator: string;
     public readonly defaultAvatarURL: string;
     public readonly dmChannel: DMChannel;
+    public flags: Readonly<UserFlags>;
     public id: Snowflake;
     public lastMessageID: Snowflake | null;
     public locale: string;
@@ -1487,6 +1491,11 @@ declare module 'discord.js' {
     public typingDurationIn(channel: ChannelResolvable): number;
     public typingIn(channel: ChannelResolvable): boolean;
     public typingSinceIn(channel: ChannelResolvable): Date;
+  }
+
+  export class UserFlags extends BitField<UserFlagsString> {
+    public static FLAGS: Record<UserFlagsString, number>;
+    public static resolve(bit?: BitFieldResolvable<UserFlagsString>): number;
   }
 
   export class Util {
@@ -1935,7 +1944,7 @@ declare module 'discord.js' {
 
   export class RoleManager extends BaseManager<Snowflake, Role, RoleResolvable> {
     constructor(guild: Guild, iterable?: Iterable<any>);
-    public readonly everyone: Role | null;
+    public readonly everyone: Role;
     public readonly highest: Role;
     public guild: Guild;
 
@@ -2225,6 +2234,7 @@ declare module 'discord.js' {
     messageSweepInterval?: number;
     fetchAllMembers?: boolean;
     disableMentions?: 'none' | 'all' | 'everyone';
+    allowedMentions?: MessageMentionOptions;
     partials?: PartialTypes[];
     restWsBridgeTimeout?: number;
     restTimeOffset?: number;
@@ -2373,6 +2383,7 @@ declare module 'discord.js' {
     query?: string;
     limit?: number;
     withPresences?: boolean;
+    time?: number;
   }
 
   interface FileOptions {
@@ -2610,6 +2621,7 @@ declare module 'discord.js' {
     embed?: MessageEmbedOptions | null;
     code?: string | boolean;
     flags?: BitFieldResolvable<MessageFlagsString>;
+    allowedMentions?: MessageMentionOptions;
   }
 
   interface MessageEmbedAuthor {
@@ -2976,6 +2988,21 @@ declare module 'discord.js' {
     elapsedTime: number;
     timeout: NodeJS.Timeout;
   }
+
+  type UserFlagsString =
+    | 'DISCORD_EMPLOYEE'
+    | 'DISCORD_PARTNER'
+    | 'HYPESQUAD_EVENTS'
+    | 'BUGHUNTER_LEVEL_1'
+    | 'HOUSE_BRAVERY'
+    | 'HOUSE_BRILLIANCE'
+    | 'HOUSE_BALANCE'
+    | 'EARLY_SUPPORTER'
+    | 'TEAM_USER'
+    | 'SYSTEM'
+    | 'BUGHUNTER_LEVEL_2'
+    | 'VERIFIED_BOT'
+    | 'VERIFIED_DEVELOPER';
 
   type UserResolvable = User | Snowflake | Message | GuildMember;
 
