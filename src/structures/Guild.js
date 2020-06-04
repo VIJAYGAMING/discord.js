@@ -1,5 +1,6 @@
 'use strict';
 
+const { deprecate } = require('util');
 const Base = require('./Base');
 const GuildAuditLogs = require('./GuildAuditLogs');
 const GuildPreview = require('./GuildPreview');
@@ -7,6 +8,7 @@ const Integration = require('./Integration');
 const Invite = require('./Invite');
 const VoiceRegion = require('./VoiceRegion');
 const Webhook = require('./Webhook');
+const { Error, TypeError } = require('../errors');
 const GuildChannelManager = require('../managers/GuildChannelManager');
 const GuildEmojiManager = require('../managers/GuildEmojiManager');
 const GuildMemberManager = require('../managers/GuildMemberManager');
@@ -223,7 +225,7 @@ class Guild extends Base {
     this.premiumTier = data.premium_tier;
 
     /**
-     * The total number of users currently boosting this server
+     * The total number of boosts for this server
      * @type {?number}
      * @name Guild#premiumSubscriptionCount
      */
@@ -330,6 +332,15 @@ class Guild extends Base {
      * @type {?string}
      */
     this.vanityURLCode = data.vanity_url_code;
+
+    /* eslint-disable max-len */
+    /**
+     * The use count of the vanity URL code of the guild, if any
+     * <info>You will need to fetch this parameter using {@link Guild#fetchVanityData} if you want to receive it</info>
+     * @type {?number}
+     */
+    this.vanityURLUses = null;
+    /* eslint-enable max-len */
 
     /**
      * The description of the guild, if any
@@ -750,6 +761,7 @@ class Guild extends Base {
    * Fetches the vanity url invite code to this guild.
    * Resolves with a string matching the vanity url invite code, not the full url.
    * @returns {Promise<string>}
+   * @deprecated
    * @example
    * // Fetch invites
    * guild.fetchVanityCode()
@@ -759,13 +771,36 @@ class Guild extends Base {
    *   .catch(console.error);
    */
   fetchVanityCode() {
+    return this.fetchVanityData().then(vanity => vanity.code);
+  }
+
+  /**
+   * An object containing information about a guild's vanity invite.
+   * @typedef {Object} Vanity
+   * @property {?string} code Vanity invite code
+   * @property {?number} uses How many times this invite has been used
+   */
+
+  /**
+   * Fetches the vanity url invite object to this guild.
+   * Resolves with an object containing the vanity url invite code and the use count
+   * @returns {Promise<Vanity>}
+   * @example
+   * // Fetch invite data
+   * guild.fetchVanityData()
+   *   .then(res => {
+   *     console.log(`Vanity URL: https://discord.gg/${res.code} with ${res.uses} uses`);
+   *   })
+   *   .catch(console.error);
+   */
+  async fetchVanityData() {
     if (!this.features.includes('VANITY_URL')) {
-      return Promise.reject(new Error('VANITY_URL'));
+      throw new Error('VANITY_URL');
     }
-    return this.client.api
-      .guilds(this.id, 'vanity-url')
-      .get()
-      .then(res => res.code);
+    const data = await this.client.api.guilds(this.id, 'vanity-url').get();
+    this.vanityURLUses = data.uses;
+
+    return data;
   }
 
   /**
@@ -1368,5 +1403,10 @@ class Guild extends Base {
     );
   }
 }
+
+Guild.prototype.fetchVanityCode = deprecate(
+  Guild.prototype.fetchVanityCode,
+  'Guild#fetchVanityCode: Use fetchVanityData() instead',
+);
 
 module.exports = Guild;
