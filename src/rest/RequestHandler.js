@@ -148,6 +148,7 @@ class RequestHandler {
     } else if (res.status === 429) {
       // A ratelimit was hit - this should never happen
       this.queue.unshift(item);
+      this.manager.client.logger.warn(`[RATELIMIT] ${item.request.method.toUpperCase()} ${item.request.route}`, JSON.stringify(item.request.options.data));
       this.manager.client.emit('debug', `429 hit on route ${item.request.route}`);
       await Util.delayFor(this.retryAfter);
       return this.run();
