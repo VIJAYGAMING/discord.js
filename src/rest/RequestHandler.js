@@ -139,6 +139,8 @@ class RequestHandler {
 
     // Finished handling headers, safe to unlock manager
     this.busy = false;
+    
+    this.manager.client.dogstats.increment("koya.requesthandler", { status: res.status });
 
     if (res.ok) {
       const success = await parseResponse(res);
