@@ -47,12 +47,12 @@ class RequestHandler {
     return this.execute(this.queue.shift());
   }
 
-  limited(remaining, reset) {
-    return Boolean(this.manager.globalTimeout) || (remaining <= 0 && Date.now() < reset);
+  get limited() {
+    return Boolean(this.manager.globalTimeout) || (this.remaining <= 0 && Date.now() < this.reset);
   }
 
-  _inactive(remaining, reset) {
-    return this.queue.length === 0 && !this.limited(remaining, reset) && this.busy !== true;
+  get _inactive() {
+    return this.queue.length === 0 && !this.limited && this.busy !== true;
   }
 
   async execute(item) {
@@ -65,12 +65,9 @@ class RequestHandler {
     this.busy = true;
     const { reject, request, resolve } = item;
 
-    const { remaining, reset, limit } = JSON.parse(await this.manager.client.redis.getAsync('RequestHandler'));
-
     // After calculations and requests have been done, pre-emptively stop further requests
-    if (this.limited(remaining, reset)) {
-
-      const timeout = reset + this.manager.client.options.restTimeOffset - Date.now();
+    if (this.limited) {
+      const timeout = this.reset + this.manager.client.options.restTimeOffset - Date.now();
 
       if (this.manager.client.listenerCount(RATE_LIMIT)) {
         /**
@@ -85,7 +82,7 @@ class RequestHandler {
          */
         this.manager.client.emit(RATE_LIMIT, {
           timeout,
-          limit,
+          limit: this.limit,
           method: request.method,
           path: request.path,
           route: request.route,
@@ -122,20 +119,10 @@ class RequestHandler {
       this.reset = reset ? calculateReset(reset, serverDate) : Date.now();
       this.retryAfter = retryAfter ? Number(retryAfter) : -1;
 
-      const storedLimits = {
-        limit: this.limit,
-        remaining: this.remaining,
-        reset: this.reset,
-        retryAfter: this.retryAfter
-      };
-
       // https://github.com/discordapp/discord-api-docs/issues/182
       if (item.request.route.includes('reactions')) {
         this.reset = new Date(serverDate).getTime() - getAPIOffset(serverDate) + 250;
-        storedLimits.reset = this.reset;
       }
-
-      await this.manager.client.redis.setAsync('RequestHandler', JSON.stringify(storedLimits));
 
       // Handle global ratelimit
       if (res.headers.get('x-ratelimit-global')) {
