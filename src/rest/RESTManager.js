@@ -15,13 +15,13 @@ class RESTManager {
     this.versioned = true;
     this.globalTimeout = null;
     if (client.options.restSweepInterval > 0) {
-      client.setInterval(() => {
+      client.setInterval(client => {
         this.handlers.sweep(async (handler) => {
-          const { remaining, reset } = JSON.parse(await this.client.redis.getAsync('RequestHandler'));
+          const { remaining, reset } = JSON.parse(await client.redis.getAsync('RequestHandler'));
 
           return handler._inactive(remaining, reset);
         });
-      }, client.options.restSweepInterval * 1000);
+      }, client.options.restSweepInterval * 1000, this.client);
     }
   }
 
