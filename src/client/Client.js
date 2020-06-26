@@ -79,6 +79,8 @@ class Client extends BaseClient {
      * @type {WebSocketManager}
      */
     this.ws = new WebSocketManager(this);
+    
+    if (options.redisClient) this.redis = options.redisClient;
 
     /**
      * The action manager of the client
