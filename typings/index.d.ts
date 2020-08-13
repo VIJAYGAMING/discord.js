@@ -159,7 +159,7 @@ declare module 'discord.js' {
     public id: Snowflake;
     public type: keyof typeof ChannelType;
     public delete(reason?: string): Promise<Channel>;
-    public fetch(): Promise<Channel>;
+    public fetch(force?: boolean): Promise<Channel>;
     public toString(): string;
   }
 
@@ -581,7 +581,7 @@ declare module 'discord.js' {
     public recipient: User;
     public readonly partial: false;
     public type: 'dm';
-    public fetch(): Promise<this>;
+    public fetch(force?: boolean): Promise<this>;
   }
 
   export class Emoji extends Base {
@@ -641,6 +641,7 @@ declare module 'discord.js' {
     public readonly owner: GuildMember | null;
     public ownerID: Snowflake;
     public readonly partnered: boolean;
+    public preferredLocale: string;
     public premiumSubscriptionCount: number | null;
     public premiumTier: PremiumTier;
     public presences: PresenceManager;
@@ -698,16 +699,19 @@ declare module 'discord.js' {
     ): Promise<Guild>;
     public setDiscoverySplash(discoverySplash: Base64Resolvable | null, reason?: string): Promise<Guild>;
     public setEmbed(embed: GuildWidgetData, reason?: string): Promise<Guild>;
-    public setExplicitContentFilter(explicitContentFilter: ExplicitContentFilterLevel, reason?: string): Promise<Guild>;
+    public setExplicitContentFilter(explicitContentFilter: ExplicitContentFilterLevel | number, reason?: string): Promise<Guild>;
     public setIcon(icon: Base64Resolvable | null, reason?: string): Promise<Guild>;
     public setName(name: string, reason?: string): Promise<Guild>;
     public setOwner(owner: GuildMemberResolvable, reason?: string): Promise<Guild>;
+    public setPreferredLocale(preferredLocale: string, reason?: string): Promise<Guild>;
+    public setPublicUpdatesChannel(publicUpdatesChannel: ChannelResolvable | null, reason?: string): Promise<Guild>;
     public setRegion(region: string, reason?: string): Promise<Guild>;
     public setRolePositions(rolePositions: RolePosition[]): Promise<Guild>;
+    public setRulesChannel(rulesChannel: ChannelResolvable | null, reason?: string): Promise<Guild>;
     public setSplash(splash: Base64Resolvable | null, reason?: string): Promise<Guild>;
     public setSystemChannel(systemChannel: ChannelResolvable | null, reason?: string): Promise<Guild>;
     public setSystemChannelFlags(systemChannelFlags: SystemChannelFlagsResolvable, reason?: string): Promise<Guild>;
-    public setVerificationLevel(verificationLevel: VerificationLevel, reason?: string): Promise<Guild>;
+    public setVerificationLevel(verificationLevel: VerificationLevel | number, reason?: string): Promise<Guild>;
     public setWidget(widget: GuildWidgetData, reason?: string): Promise<Guild>;
     public splashURL(options?: ImageURLOptions): string | null;
     public toJSON(): object;
@@ -832,8 +836,8 @@ declare module 'discord.js' {
     public user: User;
     public readonly voice: VoiceState;
     public ban(options?: BanOptions): Promise<GuildMember>;
-    public fetch(): Promise<GuildMember>;
-    public createDM(): Promise<DMChannel>;
+    public fetch(force?: boolean): Promise<GuildMember>;
+    public createDM(force?: boolean): Promise<DMChannel>;
     public deleteDM(): Promise<DMChannel>;
     public edit(data: GuildMemberEditData, reason?: string): Promise<GuildMember>;
     public hasPermission(
@@ -981,7 +985,7 @@ declare module 'discord.js' {
     public edit(options: MessageEditOptions | MessageEmbed | APIMessage): Promise<Message>;
     public equals(message: Message, rawData: object): boolean;
     public fetchWebhook(): Promise<Webhook>;
-    public fetch(): Promise<Message>;
+    public fetch(force?: boolean): Promise<Message>;
     public pin(options?: { reason?: string }): Promise<Message>;
     public react(emoji: EmojiIdentifierResolvable): Promise<MessageReaction>;
     public reply(
@@ -1516,8 +1520,8 @@ declare module 'discord.js' {
     public deleteDM(): Promise<DMChannel>;
     public displayAvatarURL(options?: ImageURLOptions & { dynamic?: boolean }): string;
     public equals(user: User): boolean;
-    public fetch(): Promise<User>;
-    public fetchFlags(): Promise<UserFlags>;
+    public fetch(force?: boolean): Promise<User>;
+    public fetchFlags(force?: boolean): Promise<UserFlags>;
     public toString(): string;
     public typingDurationIn(channel: ChannelResolvable): number;
     public typingIn(channel: ChannelResolvable): boolean;
@@ -1850,7 +1854,7 @@ declare module 'discord.js' {
 
   export class ChannelManager extends BaseManager<Snowflake, Channel, ChannelResolvable> {
     constructor(client: Client, iterable: Iterable<any>);
-    public fetch(id: Snowflake, cache?: boolean): Promise<Channel>;
+    public fetch(id: Snowflake, cache?: boolean, force?: boolean): Promise<Channel>;
   }
 
   export abstract class BaseManager<K, Holds, R> {
@@ -1942,8 +1946,12 @@ declare module 'discord.js' {
     constructor(channel: TextChannel | DMChannel, iterable?: Iterable<any>);
     public channel: TextBasedChannelFields;
     public cache: Collection<Snowflake, Message>;
-    public fetch(message: Snowflake, cache?: boolean): Promise<Message>;
-    public fetch(options?: ChannelLogsQueryOptions, cache?: boolean): Promise<Collection<Snowflake, Message>>;
+    public fetch(message: Snowflake, cache?: boolean, force?: boolean): Promise<Message>;
+    public fetch(
+      options?: ChannelLogsQueryOptions,
+      cache?: boolean,
+      force?: boolean,
+    ): Promise<Collection<Snowflake, Message>>;
     public fetchPinned(cache?: boolean): Promise<Collection<Snowflake, Message>>;
     public delete(message: MessageResolvable, reason?: string): Promise<void>;
   }
@@ -1982,13 +1990,13 @@ declare module 'discord.js' {
     public guild: Guild;
 
     public create(options?: { data?: RoleData; reason?: string }): Promise<Role>;
-    public fetch(id: Snowflake, cache?: boolean): Promise<Role | null>;
-    public fetch(id?: Snowflake, cache?: boolean): Promise<this>;
+    public fetch(id: Snowflake, cache?: boolean, force?: boolean): Promise<Role | null>;
+    public fetch(id?: Snowflake, cache?: boolean, force?: boolean): Promise<this>;
   }
 
   export class UserManager extends BaseManager<Snowflake, User, UserResolvable> {
     constructor(client: Client, iterable?: Iterable<any>);
-    public fetch(id: Snowflake, cache?: boolean): Promise<User>;
+    public fetch(id: Snowflake, cache?: boolean, force?: boolean): Promise<User>;
   }
 
   export class VoiceStateManager extends BaseManager<Snowflake, VoiceState, typeof VoiceState> {
@@ -2420,6 +2428,7 @@ declare module 'discord.js' {
   interface FetchMemberOptions {
     user: UserResolvable;
     cache?: boolean;
+    force?: boolean;
   }
 
   interface FetchMembersOptions {
@@ -2429,6 +2438,7 @@ declare module 'discord.js' {
     withPresences?: boolean;
     time?: number;
     nonce?: string;
+    force?: boolean;
   }
 
   interface FileOptions {
@@ -2532,8 +2542,8 @@ declare module 'discord.js' {
   interface GuildEditData {
     name?: string;
     region?: string;
-    verificationLevel?: VerificationLevel;
-    explicitContentFilter?: ExplicitContentFilterLevel;
+    verificationLevel?: VerificationLevel | number;
+    explicitContentFilter?: ExplicitContentFilterLevel | number;
     defaultMessageNotifications?: DefaultMessageNotifications | number;
     afkChannel?: ChannelResolvable;
     systemChannel?: ChannelResolvable;
@@ -2544,6 +2554,9 @@ declare module 'discord.js' {
     splash?: Base64Resolvable;
     discoverySplash?: Base64Resolvable;
     banner?: Base64Resolvable;
+    rulesChannel?: ChannelResolvable;
+    publicUpdatesChannel?: ChannelResolvable;
+    preferredLocale?: string;
   }
 
   interface GuildEmojiCreateOptions {
@@ -2560,13 +2573,12 @@ declare module 'discord.js' {
     | 'ANIMATED_ICON'
     | 'BANNER'
     | 'COMMERCE'
+    | 'COMMUNITY'
     | 'DISCOVERABLE'
     | 'FEATURABLE'
     | 'INVITE_SPLASH'
     | 'NEWS'
     | 'PARTNERED'
-    | 'PUBLIC'
-    | 'PUBLIC_DISABLED'
     | 'VANITY_URL'
     | 'VERIFIED'
     | 'VIP_REGIONS'
@@ -2875,7 +2887,7 @@ declare module 'discord.js' {
   } & {
     [K in keyof Omit<
       T,
-      'client' | 'createdAt' | 'createdTimestamp' | 'id' | 'partial' | 'fetch' | O
+      'client' | 'createdAt' | 'createdTimestamp' | 'id' | 'partial' | 'fetch' | 'deleted' | O
     >]: T[K] extends Function ? T[K] : T[K] | null; // tslint:disable-line:ban-types
   };
 
@@ -2910,33 +2922,38 @@ declare module 'discord.js' {
   interface PartialGuildMember
     extends Partialize<
       GuildMember,
-      'bannable' | 'displayColor' | 'displayHexColor' | 'displayName' | 'guild' | 'kickable' | 'permissions' | 'roles'
+      'bannable' | 'displayColor' | 'displayHexColor' | 'displayName' | 'guild' | 'kickable' | 'permissions' | 'roles' | 'manageable' | 'presence' | 'voice'
     > {
     readonly bannable: boolean;
     readonly displayColor: number;
     readonly displayHexColor: string;
     readonly displayName: string;
     guild: Guild;
+    readonly manageable: boolean;
     joinedAt: null;
     joinedTimestamp: null;
     readonly kickable: boolean;
     readonly permissions: GuildMember['permissions'];
+    readonly presence: GuildMember['presence'];
     readonly roles: GuildMember['roles'];
+    readonly voice: GuildMember['voice'];
   }
 
   interface PartialMessage
     extends Partialize<
       Message,
-      'attachments' | 'channel' | 'deletable' | 'editable' | 'mentions' | 'pinnable' | 'system' | 'url'
+      'attachments' | 'channel' | 'deletable' | 'editable' | 'mentions' | 'pinnable' | 'url' | 'flags' | 'edits' | 'embeds'
     > {
     attachments: Message['attachments'];
     channel: Message['channel'];
     readonly deletable: boolean;
     readonly editable: boolean;
+    readonly edits: Message['edits'];
+    embeds: Message['embeds'];
+    flags: Message['flags'];
     mentions: Message['mentions'];
     readonly pinnable: boolean;
     reactions: Message['reactions'];
-    system: boolean;
     readonly url: string;
   }
 
@@ -2946,10 +2963,12 @@ declare module 'discord.js' {
 
   type PartialTypes = 'USER' | 'CHANNEL' | 'GUILD_MEMBER' | 'MESSAGE' | 'REACTION';
 
-  interface PartialUser extends Partialize<User, 'discriminator' | 'username' | 'tag'> {
-    discriminator: undefined;
-    username: undefined;
+  interface PartialUser extends Partialize<User, 'flags' | 'locale' | 'system' | 'tag' | 'username'> {
+    flags: User['flags'];
+    locale: User['locale'];
+    system: User['system'];
     readonly tag: null;
+    username: null;
   }
 
   type PresenceStatusData = ClientPresenceStatus | 'invisible';
