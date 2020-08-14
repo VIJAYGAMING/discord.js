@@ -123,14 +123,6 @@ class GuildManager extends BaseManager {
     }
     return super.resolveID(guild);
   }
-  
-  /**
-   * Fetches a guild.
-   * @returns {Promise<Guild>}
-   */
-  fetch({id, cache = true}) {
-    return this.client.api.guilds(id).get().then(data => this.add(data, cache));
-  }
 
   /**
    * Creates a guild.
