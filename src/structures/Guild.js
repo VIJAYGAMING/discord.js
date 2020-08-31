@@ -698,6 +698,8 @@ class Guild extends Base {
   /**
    * Fetches a collection of integrations to this guild.
    * Resolves with a collection mapping integrations by their ids.
+   * @param {Object} [options] Options for fetching integrations
+   * @param {boolean} [options.includeApplications] Whether to include bot and Oauth2 webhook integrations
    * @returns {Promise<Collection<string, Integration>>}
    * @example
    * // Fetch integrations
@@ -705,10 +707,14 @@ class Guild extends Base {
    *   .then(integrations => console.log(`Fetched ${integrations.size} integrations`))
    *   .catch(console.error);
    */
-  fetchIntegrations() {
+  fetchIntegrations({ includeApplications = false } = {}) {
     return this.client.api
       .guilds(this.id)
-      .integrations.get()
+      .integrations.get({
+        query: {
+          include_applications: includeApplications,
+        },
+      })
       .then(data =>
         data.reduce(
           (collection, integration) => collection.set(integration.id, new Integration(this.client, integration, this)),
@@ -883,13 +889,7 @@ class Guild extends Base {
    *   .catch(console.error);
    */
   fetchEmbed() {
-    return this.client.api
-      .guilds(this.id)
-      .embed.get()
-      .then(data => ({
-        enabled: data.enabled,
-        channel: data.channel_id ? this.channels.cache.get(data.channel_id) : null,
-      }));
+    return this.fetchWidget();
   }
 
   /**
@@ -901,14 +901,14 @@ class Guild extends Base {
    *   .then(widget => console.log(`The widget is ${widget.enabled ? 'enabled' : 'disabled'}`))
    *   .catch(console.error);
    */
-  fetchWidget() {
-    return this.client.api
-      .guilds(this.id)
-      .widget.get()
-      .then(data => ({
-        enabled: data.enabled,
-        channel: data.channel_id ? this.channels.cache.get(data.channel_id) : null,
-      }));
+  async fetchWidget() {
+    const data = await this.client.api.guilds(this.id).widget.get();
+    this.widgetEnabled = this.embedEnabled = data.enabled;
+    this.widgetChannelID = this.embedChannelID = data.channel_id;
+    return {
+      enabled: data.enabled,
+      channel: data.channel_id ? this.channels.cache.get(data.channel_id) : null,
+    };
   }
 
   /**
@@ -1387,16 +1387,7 @@ class Guild extends Base {
    * @deprecated
    */
   setEmbed(embed, reason) {
-    return this.client.api
-      .guilds(this.id)
-      .embed.patch({
-        data: {
-          enabled: embed.enabled,
-          channel_id: this.channels.resolveID(embed.channel),
-        },
-        reason,
-      })
-      .then(() => this);
+    return this.setWidget(embed, reason);
   }
 
   /**
