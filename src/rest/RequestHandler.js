@@ -142,7 +142,7 @@ class RequestHandler {
     
     if (this.manager.client.dogstats) this.manager.client.dogstats.increment("koya.requesthandler", { status: res.status });
     
-    this.manager.client.logger.log(`[REQUEST HANDLER] ${item.request.method.toUpperCase()} ${item.request.route}`, JSON.stringify(item.request.options.data));
+    this.manager.client.logger.warn(`[REQUEST HANDLER] ${item.request.method.toUpperCase()} ${item.request.route}`, JSON.stringify(item.request.options.data));
 
     if (res.ok) {
       const success = await parseResponse(res);
