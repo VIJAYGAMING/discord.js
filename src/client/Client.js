@@ -440,6 +440,9 @@ class Client extends BaseClient {
     if (typeof options.disableMentions !== 'string') {
       throw new TypeError('CLIENT_INVALID_OPTION', 'disableMentions', 'a string');
     }
+    if (typeof options.invalidRequestWarningInterval !== 'number' || isNaN(options.invalidRequestWarningInterval)) {
+      throw new TypeError('CLIENT_INVALID_OPTION', 'invalidRequestWarningInterval', 'a number');
+    }
     if (!Array.isArray(options.partials)) {
       throw new TypeError('CLIENT_INVALID_OPTION', 'partials', 'an Array');
     }
@@ -448,6 +451,9 @@ class Client extends BaseClient {
     }
     if (typeof options.restRequestTimeout !== 'number' || isNaN(options.restRequestTimeout)) {
       throw new TypeError('CLIENT_INVALID_OPTION', 'restRequestTimeout', 'a number');
+    }
+    if (typeof options.restGlobalRateLimit !== 'number' || isNaN(options.restGlobalRateLimit)) {
+      throw new TypeError('CLIENT_INVALID_OPTION', 'restGlobalRateLimit', 'a number');
     }
     if (typeof options.restSweepInterval !== 'number' || isNaN(options.restSweepInterval)) {
       throw new TypeError('CLIENT_INVALID_OPTION', 'restSweepInterval', 'a number');

@@ -361,6 +361,7 @@ declare module 'discord.js' {
     };
     Events: {
       RATE_LIMIT: 'rateLimit';
+      INVALID_REQUEST_WARNING: 'invalidRequestWarning';
       CLIENT_READY: 'ready';
       RESUMED: 'resumed';
       GUILD_CREATE: 'guildCreate';
@@ -2296,6 +2297,7 @@ declare module 'discord.js' {
     messageUpdate: [Message | PartialMessage, Message | PartialMessage];
     presenceUpdate: [Presence | undefined, Presence];
     rateLimit: [RateLimitData];
+    invalidRequestWarning: [InvalidRequestWarningData];
     ready: [];
     invalidated: [];
     roleCreate: [Role];
@@ -2321,10 +2323,12 @@ declare module 'discord.js' {
     fetchAllMembers?: boolean;
     disableMentions?: 'none' | 'all' | 'everyone';
     allowedMentions?: MessageMentionOptions;
+    invalidRequestWarningInterval?: number;
     partials?: PartialTypes[];
     restWsBridgeTimeout?: number;
     restTimeOffset?: number;
     restRequestTimeout?: number;
+    restGlobalRateLimit?: number;
     restSweepInterval?: number;
     retryLimit?: number;
     presence?: PresenceData;
@@ -3052,6 +3056,12 @@ declare module 'discord.js' {
     method: string;
     path: string;
     route: string;
+    global: boolean;
+  }
+
+  interface InvalidRequestWarningData {
+    count: number;
+    remainingTime: number;
   }
 
   interface RawOverwriteData {

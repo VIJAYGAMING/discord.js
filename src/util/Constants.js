@@ -23,6 +23,9 @@ const browser = (exports.browser = typeof window !== 'undefined');
  * upon joining a guild (should be avoided whenever possible)
  * @property {DisableMentionType} [disableMentions='none'] Default value for {@link MessageOptions#disableMentions}
  * @property {MessageMentionOptions} [allowedMentions] Default value for {@link MessageOptions#allowedMentions}
+ * @property {number} [invalidRequestWarningInterval=0] The number of invalid REST requests (those that return
+ * 401, 403, or 429) in a 10 minute window between emitted warnings (0 for no warnings). That is, if set to 500,
+ * warnings will be emitted at invalid request number 500, 1000, 1500, and so on.
  * @property {PartialType[]} [partials] Structures allowed to be partial. This means events can be emitted even when
  * they're missing all the data for a particular structure. See the "Partials" topic listed in the sidebar for some
  * important usage information, as partials require you to put checks in place when handling data.
@@ -33,6 +36,8 @@ const browser = (exports.browser = typeof window !== 'undefined');
  * @property {number} [restRequestTimeout=15000] Time to wait before cancelling a REST request, in milliseconds
  * @property {number} [restSweepInterval=60] How frequently to delete inactive request buckets, in seconds
  * (or 0 for never)
+ * @property {number} [restGlobalRateLimit=0] How many messages to allow sending per second (0 for unlimited, 50 for
+ * the standard global limit used by Discord)
  * @property {number} [retryLimit=1] How many times to retry on 5XX errors (Infinity for indefinite amount of retries)
  * @property {PresenceData} [presence] Presence data to use upon login
  * @property {WebsocketOptions} [ws] Options for the WebSocket
@@ -45,9 +50,11 @@ exports.DefaultOptions = {
   messageSweepInterval: 0,
   fetchAllMembers: false,
   disableMentions: 'none',
+  invalidRequestWarningInterval: 0,
   partials: [],
   restWsBridgeTimeout: 5000,
   restRequestTimeout: 15000,
+  restGlobalRateLimit: 0,
   retryLimit: 1,
   restTimeOffset: 500,
   restSweepInterval: 60,
@@ -224,6 +231,7 @@ exports.VoiceOPCodes = {
 
 exports.Events = {
   RATE_LIMIT: 'rateLimit',
+  INVALID_REQUEST_WARNING: 'invalidRequestWarning',
   CLIENT_READY: 'ready',
   GUILD_CREATE: 'guildCreate',
   GUILD_DELETE: 'guildDelete',
