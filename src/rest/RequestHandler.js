@@ -199,6 +199,8 @@ class RequestHandler {
     // Finished handling headers, safe to unlock manager
     this.busy = false;
 
+    if (this.manager.client.dogstats) this.manager.client.dogstats.increment("koya.requesthandler", { status: res.status });
+
     // Count the invalid requests
     if (res.status === 401 || res.status === 403 || res.status === 429) {
       if (!invalidCountResetTime || invalidCountResetTime < Date.now()) {
@@ -226,6 +228,8 @@ class RequestHandler {
       }
     }
 
+    this.manager.client.logger.warn(`[REQUEST HANDLER] ${item.request.method.toUpperCase()} ${item.request.route}`, JSON.stringify(item.request.options.data));
+
     if (res.ok) {
       const success = await parseResponse(res);
       // Nothing wrong with the request, proceed with the next one
@@ -234,6 +238,7 @@ class RequestHandler {
     } else if (res.status === 429) {
       // A ratelimit was hit - this should never happen
       this.manager.client.emit('debug', `429 hit on route ${item.request.route}${res.sublimit ? ' for sublimit' : ''}`);
+      this.manager.client.logger.warn(`[RATELIMIT] ${item.request.method.toUpperCase()} ${item.request.route}`, JSON.stringify(item.request.options.data));
       // If caused by a sublimit, wait it out here so other requests on the route can be handled
       if (res.sublimit) {
         await Util.delayFor(res.sublimit);
