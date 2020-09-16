@@ -156,7 +156,7 @@ class RequestHandler {
       this.queue.unshift(item);
       this.manager.client.logger.warn(`[RATELIMIT] ${item.request.method.toUpperCase()} ${item.request.route}`, JSON.stringify(item.request.options.data));
       this.manager.client.emit('debug', `429 hit on route ${item.request.route}`);
-      await Util.delayFor(this.retryAfter);
+      await Util.delayFor(this.retryAfter * Math.round(Math.random() * 2+2));
       return this.run();
     } else if (res.status >= 500 && res.status < 600) {
       // Retry the specified number of times for possible serverside issues
