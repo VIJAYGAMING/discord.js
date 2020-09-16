@@ -64,13 +64,6 @@ class RequestHandler {
 
     this.busy = true;
     const { reject, request, resolve } = item;
-    
-//     var RateLimitGlobal = await this.manager.client.redis.getAsync(`x-ratelimit-global`);
-//     if (RateLimitGlobal) {
-//       var RateLimitGlobalTimeout = await this.manager.client.redis.pttlAsync(`x-ratelimit-global`);
-
-//       await Util.delayFor(RateLimitGlobalTimeout);
-//     }
 
     // After calculations and requests have been done, pre-emptively stop further requests
     if (this.limited) {
@@ -103,6 +96,8 @@ class RequestHandler {
         await Util.delayFor(timeout);
       }
     }
+    
+    if (this.manager.client.dogstats) this.manager.client.dogstats.increment("koya.requestsbyroute", { route: request.route });
 
     // Perform the request
     let res;
@@ -133,9 +128,6 @@ class RequestHandler {
 
       // Handle global ratelimit
       if (res.headers.get('x-ratelimit-global')) {
-//         // Set global ratelimit into redis
-//         await this.manager.client.redis.psetexAsync(`x-ratelimit-global`, this.retryAfter, true);
-        
         // Set the manager's global timeout as the promise for other requests to "wait"
         this.manager.globalTimeout = Util.delayFor(this.retryAfter);
 
