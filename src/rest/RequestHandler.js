@@ -97,7 +97,7 @@ class RequestHandler {
       }
     }
     
-    if (this.manager.client.dogstats) this.manager.client.dogstats.increment("koya.requestsbyroute", { route: request.route });
+    if (this.manager.client.dogstats) this.manager.client.dogstats.increment("koya.requestsbyroute", { route: `${item.request.method} ${request.route.replace(/(\d){17,19}/gi, "_id")}` });
 
     // Perform the request
     let res;
