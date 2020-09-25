@@ -96,8 +96,6 @@ class RequestHandler {
         await Util.delayFor(timeout);
       }
     }
-    
-    if (this.manager.client.dogstats) this.manager.client.dogstats.increment("koya.requestsbyroute", { route: `${item.request.method} ${request.route.replace(/(\d){17,19}/gi, "_id")}` });
 
     // Perform the request
     let res;
@@ -144,7 +142,7 @@ class RequestHandler {
     
     if (this.manager.client.dogstats) this.manager.client.dogstats.increment("koya.requesthandler", { status: res.status });
     
-    this.manager.client.logger.warn(`[REQUEST HANDLER] ${item.request.method.toUpperCase()} ${item.request.route}`, JSON.stringify(item.request.options.data));
+    // this.manager.client.logger.warn(`[REQUEST HANDLER] ${item.request.method.toUpperCase()} ${item.request.route}`, JSON.stringify(item.request.options.data));
 
     if (res.ok) {
       const success = await parseResponse(res);
@@ -170,6 +168,9 @@ class RequestHandler {
         return this.run();
       }
     } else {
+      
+      if (res.status === 403) this.manager.client.logger.warn(`[FORBIDDEN] ${item.request.method.toUpperCase()} ${item.request.route}`, JSON.stringify(item.request.options.data));
+      
       // Handle possible malformed requests
       try {
         const data = await parseResponse(res);
