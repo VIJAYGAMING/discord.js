@@ -324,7 +324,6 @@ declare module 'discord.js' {
       keywords: string[];
       bugs: { url: string };
       repository: { type: string; url: string };
-      browser: { [key: string]: boolean };
       scripts: { [key: string]: string };
       engines: { [key: string]: string };
       dependencies: { [key: string]: string };
@@ -332,7 +331,6 @@ declare module 'discord.js' {
       devDependencies: { [key: string]: string };
       [key: string]: any;
     };
-    browser: boolean;
     DefaultOptions: ClientOptions;
     UserAgent: string | null;
     Endpoints: {
@@ -904,6 +902,7 @@ declare module 'discord.js' {
     public id: Snowflake;
     public name: string;
     public role: Role;
+    public readonly roles: Collection<Snowflake, Role>;
     public syncedAt: number;
     public syncing: boolean;
     public type: string;
@@ -993,7 +992,7 @@ declare module 'discord.js' {
       options?: AwaitReactionsOptions,
     ): Promise<Collection<Snowflake, MessageReaction>>;
     public createReactionCollector(filter: CollectorFilter, options?: ReactionCollectorOptions): ReactionCollector;
-    public delete(options?: { timeout?: number; reason?: string }): Promise<Message>;
+    public delete(): Promise<Message>;
     public edit(
       content: APIMessageContentResolvable | MessageEditOptions | MessageEmbed | APIMessage,
     ): Promise<Message>;
@@ -1287,6 +1286,7 @@ declare module 'discord.js' {
     public permissions: Readonly<Permissions>;
     public readonly position: number;
     public rawPosition: number;
+    public tags: RoleTagData | null;
     public comparePositionTo(role: Role): number;
     public delete(reason?: string): Promise<Role>;
     public edit(data: RoleData, reason?: string): Promise<Role>;
@@ -1927,6 +1927,7 @@ declare module 'discord.js' {
     public remove(
       roleOrRoles: RoleResolvable | readonly RoleResolvable[] | Collection<Snowflake, Role>,
     ): Promise<GuildEmoji>;
+    public valueOf(): Collection<Snowflake, Role>;
   }
 
   export class GuildManager extends BaseManager<Snowflake, Guild, GuildResolvable> {
@@ -1953,6 +1954,8 @@ declare module 'discord.js' {
     public readonly hoist: Role | null;
     public readonly color: Role | null;
     public readonly highest: Role;
+    public readonly premiumSubscriberRole: Role | null;
+    public readonly botRole: Role | null;
     public member: GuildMember;
     public guild: Guild;
 
@@ -1965,6 +1968,7 @@ declare module 'discord.js' {
       roleOrRoles: RoleResolvable | readonly RoleResolvable[] | Collection<Snowflake, Role>,
       reason?: string,
     ): Promise<GuildMember>;
+    public valueOf(): Collection<Snowflake, Role>;
   }
 
   export class MessageManager extends BaseManager<Snowflake, Message, MessageResolvable> {
@@ -1978,7 +1982,7 @@ declare module 'discord.js' {
       force?: boolean,
     ): Promise<Collection<Snowflake, Message>>;
     public fetchPinned(cache?: boolean): Promise<Collection<Snowflake, Message>>;
-    public delete(message: MessageResolvable, reason?: string): Promise<void>;
+    public delete(message: MessageResolvable): Promise<void>;
   }
 
   // Hacky workaround because changing the signature of an overridden method errors
@@ -2013,7 +2017,8 @@ declare module 'discord.js' {
     public readonly everyone: Role;
     public readonly highest: Role;
     public guild: Guild;
-
+    public readonly premiumSubscriberRole: Role | null;
+    public botRoleFor(user: UserResolvable): Role | null;
     public create(options?: { data?: RoleData; reason?: string }): Promise<Role>;
     public fetch(id: Snowflake, cache?: boolean, force?: boolean): Promise<Role | null>;
     public fetch(id?: Snowflake, cache?: boolean, force?: boolean): Promise<Collection<Snowflake, Role>>;
@@ -2327,7 +2332,6 @@ declare module 'discord.js' {
     messageSweepInterval?: number;
     messageEditHistoryMaxSize?: number;
     fetchAllMembers?: boolean;
-    disableMentions?: 'none' | 'all' | 'everyone';
     allowedMentions?: MessageMentionOptions;
     partials?: PartialTypes[];
     restWsBridgeTimeout?: number;
@@ -2837,7 +2841,6 @@ declare module 'discord.js' {
     nonce?: string | number;
     content?: StringResolvable;
     embed?: MessageEmbed | MessageEmbedOptions;
-    disableMentions?: 'none' | 'all' | 'everyone';
     allowedMentions?: MessageMentionOptions;
     files?: (FileOptions | BufferResolvable | Stream | MessageAttachment)[];
     code?: string | boolean;
@@ -3115,6 +3118,12 @@ declare module 'discord.js' {
 
   type RoleResolvable = Role | string;
 
+  interface RoleTagData {
+    botID?: Snowflake;
+    integrationID?: Snowflake;
+    premiumSubscriberRole?: true;
+  }
+
   type ShardingManagerMode = 'process' | 'worker';
 
   type Snowflake = string;
@@ -3194,7 +3203,6 @@ declare module 'discord.js' {
     tts?: boolean;
     nonce?: string;
     embeds?: (MessageEmbed | object)[];
-    disableMentions?: 'none' | 'all' | 'everyone';
     allowedMentions?: MessageMentionOptions;
     files?: (FileOptions | BufferResolvable | Stream | MessageAttachment)[];
     code?: string | boolean;
